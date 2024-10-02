@@ -1,0 +1,74 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql" based on your choice
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  phone      String?
+  full_name  String?
+  first_name String
+  last_name  String
+  company    Company? @relation(fields: [companyId], references: [id])
+  companyId  Int?
+  shopifyId  String? // Shopify customer ID for synchronization
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Company {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String?    @unique
+  phone     String?
+  address1  String?
+  address2  String?
+  city      String?
+  province  String?
+  zip       String?
+  country   String?
+  customers Customer[] // One-to-many relation with Customer
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Log       Log[]
+}
+
+model Log {
+  id         Int      @id @default(autoincrement())
+  level      String // e.g., 'ERROR', 'WARN', 'INFO'
+  message    String
+  stackTrace String?
+  endpoint   String? // API endpoint where the error occurred
+  method     String? // HTTP method: GET, POST, etc.
+  userId     Int? // ID of the user if available
+  timestamp  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model ShopifyDataSyncLog {
+  id         Int      @id @default(autoincrement())
+  entityType String
+  action     String
+  remarks    String?
+  createdAt  DateTime @default(now())
+}
