@@ -11,8 +11,7 @@ const {
 } = require('./companies');
 const authenticateToken = require('./auth/authMiddleware');
 const {register, login} = require('./auth');
-const {testShopify, testShopify2, testShopify3, shopifyCustomerSync} = require("./shopify");
-
+const {shopifyCustomerSync} = require("./shopify");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -65,7 +64,7 @@ app.put('/customers/:id', authenticateToken, updateCustomer);
 app.delete('/customers/:id', authenticateToken, deleteCustomer);
 
 //shopify
-app.get("/shopify/shopifyCustomerSync", shopifyCustomerSync);
+app.get("/shopify/shopifyCustomerSync", authenticateToken, shopifyCustomerSync);
 
 
 app.listen(port, () => {
